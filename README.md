@@ -4,6 +4,8 @@
 
 iOS Build [![Build Status](https://travis-ci.org/cowbell/cordova-plugin-geofence.svg?branch=master)](https://travis-ci.org/cowbell/cordova-plugin-geofence)
 
+Android Build [![Build Status](https://circleci.com/gh/cowbell/cordova-plugin-geofence.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/cowbell/cordova-plugin-geofence)
+
 Plugin to monitor circular geofences using mobile devices. The purpose is to notify user if crossing the boundary of the monitored geofence.
 
 *Geofences persists after device reboot. You do not have to open your app first to monitor added geofences*
@@ -17,6 +19,12 @@ Check out our [example application](https://github.com/cowbell/ionic-geofence) b
 From master
 ```
 cordova plugin add https://github.com/cowbell/cordova-plugin-geofence
+```
+
+Latest stable version
+
+```
+cordova plugin add cordova-plugin-geofence
 ```
 
 ## Removing the Plugin from project
@@ -49,8 +57,8 @@ Cordova initialize plugin to `window.geofence` object.
 
 All methods returning promises, but you can also use standard callback functions.
 
-For listening of geofence transistion you can override receiveTransition method
-- `window.geofence.receiveTransition(geofences)`
+For listening of geofence transistion you can override onTransitionReceived method
+- `window.geofence.onTransitionReceived(geofences)`
 
 ## Constants
 
@@ -200,10 +208,20 @@ window.geofence.getWatched().then(function (geofencesJson) {
 ## Listening for geofence transitions
 
 ```javascript
-window.geofence.receiveTransition = function (geofences) {
+window.geofence.onTransitionReceived = function (geofences) {
     geofences.forEach(function (geo) {
         console.log('Geofence transition detected', geo);
     });
+};
+```
+
+## When the app is opened via Notification click
+
+Android, iOS only
+
+```javascript
+window.geofence.onNotificationClicked = function (notificationData) {
+    console.log('App opened from Geo Notification!', notificationData);
 };
 ```
 

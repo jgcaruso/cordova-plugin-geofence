@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.content.Context;
 import android.util.Log;
 
@@ -66,6 +67,8 @@ public class GeofencePlugin extends CordovaPlugin {
             callbackContext.success(Gson.get().toJson(geoNotifications));
         } else if (action.equals("initialize")) {
 
+        } else if (action.equals("deviceReady")) {
+            deviceReady();
         } else {
             return false;
         }
@@ -79,8 +82,8 @@ public class GeofencePlugin extends CordovaPlugin {
         return geo;
     }
 
-    public static void fireReceiveTransition(List<GeoNotification> notifications) {
-        String js = "setTimeout('geofence.receiveTransition("
+    public static void onTransitionReceived(List<GeoNotification> notifications) {
+        String js = "setTimeout('geofence.onTransitionReceived("
                 + Gson.get().toJson(notifications) + ")',0)";
         if (webView == null) {
             Log.d(TAG, "Webview is null");
@@ -89,4 +92,16 @@ public class GeofencePlugin extends CordovaPlugin {
         }
     }
 
+    private void deviceReady() {
+        Intent intent = cordova.getActivity().getIntent();
+        String data = intent.getStringExtra("geofence.notification.data");
+        String js = "setTimeout('geofence.onNotificationClicked("
+                + data + ")',0)";
+
+        if (data == null) {
+            Log.d(TAG, "No notifications clicked.");
+        } else {
+            webView.sendJavascript(js);
+        }
+    }
 }

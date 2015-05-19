@@ -15,15 +15,29 @@ module.exports = function(context) {
     function run(projectRoot) {
         var cordova_util = context.requireCordovaModule('cordova-lib/src/cordova/util'),
             ConfigParser = context.requireCordovaModule('cordova-lib/src/configparser/ConfigParser'),
-            platforms = context.requireCordovaModule('cordova-lib/src/plugman/platforms'),
+            platform_ios,
             xml = cordova_util.projectConfig(projectRoot),
             cfg = new ConfigParser(xml),
             projectName = cfg.name(),
             iosPlatformPath = path.join(projectRoot, 'platforms', 'ios'),
             iosProjectFilesPath = path.join(iosPlatformPath, projectName),
-            projectFile = platforms['ios'].parseProjectFile(iosPlatformPath),
-            xcodeProject = projectFile.xcode,
+            projectFile,
+            xcodeProject,
             bridgingHeaderPath;
+
+        try {
+            // try pre-5.0 cordova structure
+            platform_ios = context.requireCordovaModule('cordova-lib/src/plugman/platforms')['ios'];
+            projectFile = platform_ios.parseProjectFile(iosPlatformPath);
+        } catch (e) {
+            console.log("Looks like we're in Cordova 5.0 and above...");
+            // let's try cordova 5.0 structure
+            platform_ios = context.requireCordovaModule('cordova-lib/src/plugman/platforms/ios');
+            projectFile = platform_ios.parseProjectFile(iosPlatformPath);
+        }
+
+        // hopefully projectFile can't go null here.......
+        xcodeProject = projectFile.xcode;
 
         bridgingHeaderPath = getBridgingHeader(xcodeProject);
         if(bridgingHeaderPath) {
